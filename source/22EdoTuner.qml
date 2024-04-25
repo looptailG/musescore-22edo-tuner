@@ -24,7 +24,7 @@ MuseScore
 {
 	menuPath: "Plugins.Tuner.22EDO"
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO."
-	version: "0.1.0"
+	version: "0.2.0"
 	
 	Component.onCompleted:
 	{
@@ -38,6 +38,68 @@ MuseScore
 
 	// Size in cents of an EDO step.
 	property var stepSize: 1200.0 / 22;
+	// Difference in cents between a 12EDO and a 31EDO fifth.
+	property var fifthDeviation: 700 - 13 * stepSize;
+	// Offsets in cents between the notes in 31EDO and their 12EDO counterparts.
+	property variant centOffsets:
+	{
+		"C":
+		{
+			"bb": 2 * fifthDeviation + 14 * fifthDeviation,
+			"b": 2 * fifthDeviation + 7 * fifthDeviation,
+			"h": 2 * fifthDeviation,
+			"#": 2 * fifthDeviation - 7 * fifthDeviation,
+			"x": 2 * fifthDeviation - 14 * fifthDeviation
+		},
+		"D":
+		{
+			"bb": 14 * fifthDeviation,
+			"b": 7 * fifthDeviation,
+			"h": 0,
+			"#": -7 * fifthDeviation,
+			"x": -14 * fifthDeviation
+		},
+		"E":
+		{
+			"bb": -2 * fifthDeviation + 14 * fifthDeviation,
+			"b": -2 * fifthDeviation + 7 * fifthDeviation,
+			"h": -2 * fifthDeviation,
+			"#": -2 * fifthDeviation - 7 * fifthDeviation,
+			"x": -2 * fifthDeviation - 14 * fifthDeviation
+		},
+		"F":
+		{
+			"bb": 3 * fifthDeviation + 14 * fifthDeviation,
+			"b": 3 * fifthDeviation + 7 * fifthDeviation,
+			"h": 3 * fifthDeviation,
+			"#": 3 * fifthDeviation - 7 * fifthDeviation,
+			"x": 3 * fifthDeviation - 14 * fifthDeviation
+		},
+		"G":
+		{
+			"bb": 1 * fifthDeviation + 14 * fifthDeviation,
+			"b": 1 * fifthDeviation + 7 * fifthDeviation,
+			"h": 1 * fifthDeviation,
+			"#": 1 * fifthDeviation - 7 * fifthDeviation,
+			"x": 1 * fifthDeviation - 14 * fifthDeviation
+		},
+		"A":
+		{
+			"bb": -1 * fifthDeviation + 14 * fifthDeviation,
+			"b": -1 * fifthDeviation + 7 * fifthDeviation,
+			"h": -1 * fifthDeviation,
+			"#": -1 * fifthDeviation - 7 * fifthDeviation,
+			"x": -1 * fifthDeviation - 14 * fifthDeviation
+		},
+		"B":
+		{
+			"bb": -3 * fifthDeviation + 14 * fifthDeviation,
+			"b": -3 * fifthDeviation + 7 * fifthDeviation,
+			"h": -3 * fifthDeviation,
+			"#": -3 * fifthDeviation - 7 * fifthDeviation,
+			"x": -3 * fifthDeviation - 14 * fifthDeviation
+		},
+	}
 	
 	// Map containing the properties of every supported accidental.  The
 	// accidentals with a "DEFAULT_OFFSET" property are those not handled by the
@@ -321,6 +383,155 @@ MuseScore
 		logMessage("Tuning note: " + calculateNoteName(note));
 		
 		var tuningOffset = 0;
+
+		// Get the tuning offset for the input note with respect to 12EDO, based
+		// on its tonal pitch class.
+		switch (note.tpc)
+		{
+			case -1:
+				tuningOffset += centOffsets["F"]["bb"];
+				break;
+
+			case 0:
+				tuningOffset += centOffsets["C"]["bb"];
+				break;
+
+			case 1:
+				tuningOffset += centOffsets["G"]["bb"];
+				break;
+
+			case 2:
+				tuningOffset += centOffsets["D"]["bb"];
+				break;
+
+			case 3:
+				tuningOffset += centOffsets["A"]["bb"];
+				break;
+
+			case 4:
+				tuningOffset += centOffsets["E"]["bb"];
+				break;
+
+			case 5:
+				tuningOffset += centOffsets["B"]["bb"];
+				break;
+
+			case 6:
+				tuningOffset += centOffsets["F"]["b"];
+				break;
+
+			case 7:
+				tuningOffset += centOffsets["C"]["b"];
+				break;
+
+			case 8:
+				tuningOffset += centOffsets["G"]["b"];
+				break;
+
+			case 9:
+				tuningOffset += centOffsets["D"]["b"];
+				break;
+
+			case 10:
+				tuningOffset += centOffsets["A"]["b"];
+				break;
+
+			case 11:
+				tuningOffset += centOffsets["E"]["b"];
+				break;
+
+			case 12:
+				tuningOffset += centOffsets["B"]["b"];
+				break;
+
+			case 13:
+				tuningOffset += centOffsets["F"]["h"];
+				break;
+
+			case 14:
+				tuningOffset += centOffsets["C"]["h"];
+				break;
+
+			case 15:
+				tuningOffset += centOffsets["G"]["h"];
+				break;
+
+			case 16:
+				tuningOffset += centOffsets["D"]["h"];
+				break;
+
+			case 17:
+				tuningOffset += centOffsets["A"]["h"];
+				break;
+
+			case 18:
+				tuningOffset += centOffsets["E"]["h"];
+				break;
+
+			case 19:
+				tuningOffset += centOffsets["B"]["h"];
+				break;
+
+			case 20:
+				tuningOffset += centOffsets["F"]["#"];
+				break;
+
+			case 21:
+				tuningOffset += centOffsets["C"]["#"];
+				break;
+
+			case 22:
+				tuningOffset += centOffsets["G"]["#"];
+				break;
+
+			case 23:
+				tuningOffset += centOffsets["D"]["#"];
+				break;
+
+			case 24:
+				tuningOffset += centOffsets["A"]["#"];
+				break;
+
+			case 25:
+				tuningOffset += centOffsets["E"]["#"];
+				break;
+
+			case 26:
+				tuningOffset += centOffsets["B"]["#"];
+				break;
+
+			case 27:
+				tuningOffset += centOffsets["F"]["x"];
+				break;
+
+			case 28:
+				tuningOffset += centOffsets["C"]["x"];
+				break;
+
+			case 29:
+				tuningOffset += centOffsets["G"]["x"];
+				break;
+
+			case 30:
+				tuningOffset += centOffsets["D"]["x"];
+				break;
+
+			case 31:
+				tuningOffset += centOffsets["A"]["x"];
+				break;
+
+			case 32:
+				tuningOffset += centOffsets["E"]["x"];
+				break;
+
+			case 33:
+				tuningOffset += centOffsets["B"]["x"];
+				break;
+			
+			default:
+				throw "Could not resolve the tpc: " + note.tpc;
+		}
+		logMessage("Base tuning offset: " + tuningOffset);
 		
 		
 
