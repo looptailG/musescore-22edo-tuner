@@ -8,6 +8,8 @@ It's compatible with the [Ups and Downs Notation](https://en.xen.wiki/w/22edo#Up
 
 ![image](https://github.com/looptailG/musescore-22edo-tuner/assets/99362337/baf955eb-6bee-4f99-80e2-a97f7f19d70e)
 
+See [here](https://github.com/looptailG/musescore-22edo-tuner/wiki/Supported-Accidentals) for a list of every supported accidental.
+
 ## Usage
 - If the score contains transposing instruments, ensure that the score is being displayed at concert pitch.  If it's not, the notes of transposing instruments will not be tuned correctly.
 - If you want to tune only a portion of the score, select it before running the plugin.  If nothing is selected, the entire score will be tuned.
@@ -16,6 +18,8 @@ It's compatible with the [Ups and Downs Notation](https://en.xen.wiki/w/22edo#Up
   - Musescore4: <code>Plugins</code> → <code>Playback</code> → <code>22EDO Tuner</code>
 
 If the score contains transposing instruments, you can safely turn off concert pitch after running the plugin, as the tuning of the notes will not be affected.
+
+See [here](https://github.com/looptailG/musescore-22edo-tuner/wiki/Known-Issues#incorrect-handling-of-microtonal-accidental-for-transposing-instruments) for a known issue regarding transposing instruments.
 
 ## Installing
 ### Musescore3
