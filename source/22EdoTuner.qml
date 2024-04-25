@@ -533,7 +533,25 @@ MuseScore
 		}
 		logMessage("Base tuning offset: " + tuningOffset);
 		
-		
+		// Certain accidentals, like the microtonal accidentals, are not
+		// conveyed by the tpc property, but are instead handled directly via a
+		// tuning offset.
+		var defaultAccidentalOffset = supportedAccidentals[getAccidentalName(note)]["DEFAULT_OFFSET"];
+		if (defaultAccidentalOffset !== undefined)
+		{
+			// Undo the default tuning offset which is applied to certain
+			// accidentals.
+			if (mscoreMajorVersion >= 4)
+			{
+				logMessage("Undoing the default tuning offset of: " + defaultAccidentalOffset);
+				tuningOffset -= defaultAccidentalOffset;
+			}
+			
+			// Apply the tuning offset for this specific accidental.
+			var edoSteps = getAccidentalEdoSteps(note);
+			logMessage("Offsetting the tuning by the following amount of EDO steps: " + edoSteps);
+			tuningOffset += edoSteps * stepSize;
+		}
 
 		return tuningOffset;
 	}
