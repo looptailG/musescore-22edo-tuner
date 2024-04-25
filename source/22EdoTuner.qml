@@ -1,5 +1,5 @@
 /*
-	22EDO Tuner plugin for Musescore
+	22EDO Tuner plugin for Musescore.
 	Copyright (C) 2024 Alessandro Culatti
 
 	This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,9 @@ MuseScore
 	// Size in cents of an EDO step.
 	property var stepSize: 1200.0 / 22;
 	
-	// Map containing the properties of every supported accidental.
+	// Map containing the properties of every supported accidental.  The
+	// accidentals with a "DEFAULT_OFFSET" property are those not handled by the
+	// tpc property, but instead by a tuning offset.
 	// Values taken from: Musescore/src/engraving/dom/accidental.cpp
 	property variant supportedAccidentals:
 	{
@@ -49,7 +51,7 @@ MuseScore
 		},
 		"FLAT":
 		{
-			"EDO_STEPS": -2,
+			"EDO_STEPS": -3,
 		},
 		"NATURAL":
 		{
@@ -57,63 +59,115 @@ MuseScore
 		},
 		"SHARP":
 		{
-			"EDO_STEPS": 2,
+			"EDO_STEPS": 3,
 		},
-		"SHARP2":  // Double sharp
+		"SHARP2":
 		{
-			"EDO_STEPS": 4,
+			"EDO_STEPS": 6,
 		},
-		"FLAT2":  // Double flat
+		"FLAT2":
 		{
-			"EDO_STEPS": -4,
+			"EDO_STEPS": -6,
 		},
-		"NATURAL_FLAT":
+		"FLAT_ARROW_UP":
 		{
 			"EDO_STEPS": -2,
-		},
-		"NATURAL_SHARP":
-		{
-			"EDO_STEPS": 2,
-		},
-		"MIRRORED_FLAT":  // Half flat
-		{
-			"EDO_STEPS": -1,
 			"DEFAULT_OFFSET": -50,
 		},
-		"MIRRORED_FLAT2":  // Sesqui flat
+		"FLAT_ARROW_DOWN":
 		{
-			"EDO_STEPS": -3,
+			"EDO_STEPS": -4,
 			"DEFAULT_OFFSET": -150,
 		},
-		"SHARP_SLASH":  // Half sharp
+		"NATURAL_ARROW_UP":
 		{
 			"EDO_STEPS": 1,
 			"DEFAULT_OFFSET": 50,
 		},
-		"SHARP_SLASH4":  // Sesqui sharp
-		{
-			"EDO_STEPS": 3,
-			"DEFAULT_OFFSET": 150,
-		},
-		"SAGITTAL_11MDD":  // Sagittal quarter tone down
+		"NATURAL_ARROW_DOWN":
 		{
 			"EDO_STEPS": -1,
-			"DEFAULT_OFFSET": -53.3,
+			"DEFAULT_OFFSET": -50,
 		},
-		"SAGITTAL_11MDU":  // Sagittal quarter tone up
+		"SHARP_ARROW_UP":
 		{
-			"EDO_STEPS": 1,
-			"DEFAULT_OFFSET": 53.3,
+			"EDO_STEPS": 4,
+			"DEFAULT_OFFSET": 150,
 		},
-		"SAGITTAL_FLAT":  // Sagittal half tone down
-		{
-			"EDO_STEPS": -2,
-			"DEFAULT_OFFSET": -113.7,
-		},
-		"SAGITTAL_SHARP":  // Sagittal half tone up
+		"SHARP_ARROW_DOWN":
 		{
 			"EDO_STEPS": 2,
-			"DEFAULT_OFFSET": 113.7,
+			"DEFAULT_OFFSET": 50,
+		},
+		"SHARP2_ARROW_UP":
+		{
+			"EDO_STEPS": 7,
+			"DEFAULT_OFFSET": 250,
+		},
+		"SHARP2_ARROW_DOWN":
+		{
+			"EDO_STEPS": 5,
+			"DEFAULT_OFFSET": 150,
+		},
+		"FLAT2_ARROW_UP":
+		{
+			"EDO_STEPS": -5,
+			"DEFAULT_OFFSET": -150,
+		},
+		"FLAT2_ARROW_DOWN":
+		{
+			"EDO_STEPS": -7,
+			"DEFAULT_OFFSET": -250,
+		},
+		"DOUBLE_FLAT_ONE_ARROW_DOWN":
+		{
+			"EDO_STEPS": -7,
+			"DEFAULT_OFFSET": 0,
+		},
+		"FLAT_ONE_ARROW_DOWN":
+		{
+			"EDO_STEPS": -4,
+			"DEFAULT_OFFSET": 0,
+		},
+		"NATURAL_ONE_ARROW_DOWN":
+		{
+			"EDO_STEPS": -1,
+			"DEFAULT_OFFSET": 0,
+		},
+		"SHARP_ONE_ARROW_DOWN":
+		{
+			"EDO_STEPS": 2,
+			"DEFAULT_OFFSET": 0,
+		},
+		"DOUBLE_SHARP_ONE_ARROW_DOWN":
+		{
+			"EDO_STEPS": 5,
+			"DEFAULT_OFFSET": 0,
+		},
+		"DOUBLE_FLAT_ONE_ARROW_UP":
+		{
+			"EDO_STEPS": -5,
+			"DEFAULT_OFFSET": 0,
+		},
+		"FLAT_ONE_ARROW_UP":
+		{
+			"EDO_STEPS": -2,
+			"DEFAULT_OFFSET": 0,
+		},
+		"NATURAL_ONE_ARROW_UP":
+		{
+			"EDO_STEPS": 1,
+			"DEFAULT_OFFSET": 0,
+		},
+		"SHARP_ONE_ARROW_UP":
+		{
+			"EDO_STEPS": 4,
+			"DEFAULT_OFFSET": 0,
+		},
+		"DOUBLE_SHARP_ONE_ARROW_UP":
+		{
+			"EDO_STEPS": 7,
+			"DEFAULT_OFFSET": 0,
 		},
 	}
 	
