@@ -176,7 +176,7 @@ MuseScore
 	MessageDialog
 	{
 		id: debugLogger;
-		title: "31EDO Tuner - Debug";
+		title: "22EDO Tuner - Debug";
 		text: "";
 
 		function log(message, isErrorMessage)
@@ -472,35 +472,65 @@ MuseScore
 			case Accidental.FLAT2:
 				return "FLAT2";
 			
-			case Accidental.NATURAL_FLAT:
-				return "NATURAL_FLAT";
+			case Accidental.FLAT_ARROW_UP:
+				return "FLAT_ARROW_UP";
 			
-			case Accidental.NATURAL_SHARP:
-				return "NATURAL_SHARP";
+			case Accidental.FLAT_ARROW_DOWN:
+				return "FLAT_ARROW_DOWN";
 			
-			case Accidental.MIRRORED_FLAT:
-				return "MIRRORED_FLAT";
+			case Accidental.NATURAL_ARROW_UP:
+				return "NATURAL_ARROW_UP";
 			
-			case Accidental.MIRRORED_FLAT2:
-				return "MIRRORED_FLAT2";
+			case Accidental.NATURAL_ARROW_DOWN:
+				return "NATURAL_ARROW_DOWN";
 			
-			case Accidental.SHARP_SLASH:
-				return "SHARP_SLASH";
+			case Accidental.SHARP_ARROW_UP:
+				return "SHARP_ARROW_UP";
 			
-			case Accidental.SHARP_SLASH4:
-				return "SHARP_SLASH4";
+			case Accidental.SHARP_ARROW_DOWN:
+				return "SHARP_ARROW_DOWN";
 			
-			case Accidental.SAGITTAL_11MDD:
-				return "SAGITTAL_11MDD";
+			case Accidental.SHARP2_ARROW_UP:
+				return "SHARP2_ARROW_UP";
 			
-			case Accidental.SAGITTAL_11MDU:
-				return "SAGITTAL_11MDU";
+			case Accidental.SHARP2_ARROW_DOWN:
+				return "SHARP2_ARROW_DOWN";
 			
-			case Accidental.SAGITTAL_FLAT:
-				return "SAGITTAL_FLAT";
+			case Accidental.FLAT2_ARROW_UP:
+				return "FLAT2_ARROW_UP";
 			
-			case Accidental.SAGITTAL_SHARP:
-				return "SAGITTAL_SHARP";
+			case Accidental.FLAT2_ARROW_DOWN:
+				return "FLAT2_ARROW_DOWN";
+			
+			case Accidental.DOUBLE_FLAT_ONE_ARROW_DOWN:
+				return "DOUBLE_FLAT_ONE_ARROW_DOWN";
+			
+			case Accidental.FLAT_ONE_ARROW_DOWN:
+				return "FLAT_ONE_ARROW_DOWN";
+			
+			case Accidental.NATURAL_ONE_ARROW_DOWN:
+				return "NATURAL_ONE_ARROW_DOWN";
+			
+			case Accidental.SHARP_ONE_ARROW_DOWN:
+				return "SHARP_ONE_ARROW_DOWN";
+			
+			case Accidental.DOUBLE_SHARP_ONE_ARROW_DOWN:
+				return "DOUBLE_SHARP_ONE_ARROW_DOWN";
+			
+			case Accidental.DOUBLE_FLAT_ONE_ARROW_UP:
+				return "DOUBLE_FLAT_ONE_ARROW_UP";
+			
+			case Accidental.FLAT_ONE_ARROW_UP:
+				return "FLAT_ONE_ARROW_UP";
+			
+			case Accidental.NATURAL_ONE_ARROW_UP:
+				return "NATURAL_ONE_ARROW_UP";
+			
+			case Accidental.SHARP_ONE_ARROW_UP:
+				return "SHARP_ONE_ARROW_UP";
+			
+			case Accidental.DOUBLE_SHARP_ONE_ARROW_UP:
+				return "DOUBLE_SHARP_ONE_ARROW_UP";
 			
 			default:
 				throw "Unsupported accidental: " + note.accidentalType;
