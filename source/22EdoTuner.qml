@@ -131,6 +131,14 @@ MuseScore
 		{
 			"EDO_STEPS": -6,
 		},
+		"NATURAL_FLAT":
+		{
+			"EDO_STEPS": -3,
+		},
+		"NATURAL_SHARP":
+		{
+			"EDO_STEPS": 3,
+		},
 		"FLAT_ARROW_UP":
 		{
 			"EDO_STEPS": -2,
@@ -724,6 +732,12 @@ MuseScore
 			
 			case Accidental.FLAT2:
 				return "FLAT2";
+			
+			case Accidental.NATURAL_FLAT:
+				return "NATURAL_FLAT";
+			
+			case Accidental.NATURAL_SHARP:
+				return "NATURAL_SHARP";
 			
 			case Accidental.FLAT_ARROW_UP:
 				return "FLAT_ARROW_UP";
