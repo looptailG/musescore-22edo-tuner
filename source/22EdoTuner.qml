@@ -22,9 +22,9 @@ import MuseScore 3.0
 
 MuseScore
 {
-	menuPath: "Plugins.Tuner.22EDO"
-	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO."
-	version: "1.1.0-alpha"
+	menuPath: "Plugins.Tuner.22EDO";
+	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
+	version: "1.1.0";
 	
 	Component.onCompleted:
 	{
@@ -244,10 +244,22 @@ MuseScore
 	// Map containing the previous microtonal accidentals in the current
 	// measure.  The keys are formatted as note letter concatenated with the
 	// note octave, for example C4.  The value is the last microtonal accidental
-	// that was applied to that note.
+	// that was applied to that note within the current measure.
 	property variant previousAccidentals:
 	{}
 	
+	// Map containing the alteration presents in the current custom key
+	// signature, if any.  The keys are the names of the notes, and the values
+	// are the accidentals applied to them.  It supports only octave-repeating
+	// key signatures.
+	property variant currentCustomKeySignature:
+	{}
+	// Regex used for checking if a string is valid as a custom key signature.
+	property var customKeySignatureRegex: /^(vbb|\^bb|vb|\^b|vh|\^h|v#|\^#|vx|\^x|)(?:\.(?:vbb|\^bb|vb|\^b|vh|\^h|v#|\^#|vx|\^x|)){6}$/;
+	// Array containing the notes in the order they appear in the custom key
+	// signature string.
+	property var customKeySignatureNoteOrder: ["F", "C", "G", "D", "A", "E", "B"];
+
 	property var showLog: false;
 	property var maxLines: 50;
 	MessageDialog
@@ -270,8 +282,12 @@ MuseScore
 			{
 				// Truncate the message to a maximum number of lines, to prevent
 				// issues with the message box being too large.
-				var messageLines = text.split("\n").slice(0, maxLines);
-				text = messageLines.join("\n") + "\n" + "...";
+				var messageLines = text.split("\n");
+				if (messageLines.length > maxLines)
+				{
+					var messageLines = messageLines.slice(0, maxLines);
+					text = messageLines.join("\n") + "\n" + "...";
+				}
 				debugLogger.open();
 			}
 		}
@@ -330,6 +346,8 @@ MuseScore
 				cursor.staffIdx = staff;
 				cursor.rewindToTick(startTick);
 
+				currentCustomKeySignature = {};
+
 				// Loop on elements of a voice.
 				while (cursor.segment && (cursor.tick < endTick))
 				{
@@ -337,6 +355,108 @@ MuseScore
 					{
 						// New measure, empty the previous accidentals map.
 						previousAccidentals = {};
+					}
+
+					// Check for key signature change.
+					// TODO: This implementation is very ineffcient, as this piece of code is called on every element when the key signature is not empty.  Find a way to call this only when the key signature actually change.
+					if (cursor.keySignature)
+					{
+						// The key signature has changed, empty the custom key
+						// signature map.
+						// TODO: This if is necessary only because the previous if is not true only when there is an actual key signature change.  This way we check if the mapping was not empty before, and thus actually needs to be emptied now.
+						if (Object.keys(currentCustomKeySignature).length != 0)
+						{
+							logMessage("Key signature change, emptying the custom key signature map.");
+							currentCustomKeySignature = {};
+						}
+					}
+					// Check if there is a text indicating a custom key
+					// signature change.
+					for (var i = 0; i < cursor.segment.annotations.length; i++)
+					{
+						var annotationText = cursor.segment.annotations[i].text;
+						if (customKeySignatureRegex.test(annotationText))
+						{
+							logMessage("Applying the current custom key signature: " + annotationText);
+							currentCustomKeySignature = {};
+							try
+							{
+								var annotationTextSplitted = annotationText.split(".");
+								for (var j = 0; j < annotationTextSplitted.length; j++)
+								{
+									var currentNote = customKeySignatureNoteOrder[j];
+									var currentAccidental = annotationTextSplitted[j];
+									var accidentalName = "";
+									switch (currentAccidental)
+									{
+										case "bb":
+										case "b":
+										case "":
+										case "h":
+										case "#":
+										case "x":
+											// Non-microtonal accidentals are
+											// automatically handled by
+											// Musescore even in custom key
+											// signatures, so we only have to
+											// check for microtonal accidentals.
+											break;
+
+										case "vbb":
+											accidentalName = "FLAT2_ARROW_DOWN";
+											break;
+
+										case "^bb":
+											accidentalName = "FLAT2_ARROW_UP";
+											break;
+
+										case "vb":
+											accidentalName = "FLAT_ARROW_DOWN";
+											break;
+
+										case "^b":
+											accidentalName = "FLAT_ARROW_UP";
+											break;
+
+										case "vh":
+											accidentalName = "NATURAL_ARROW_DOWN";
+											break;
+
+										case "^h":
+											accidentalName = "NATURAL_ARROW_UP";
+											break;
+
+										case "v#":
+											accidentalName = "SHARP_ARROW_DOWN";
+											break;
+
+										case "^#":
+											accidentalName = "SHARP_ARROW_UP";
+											break;
+
+										case "vx":
+											accidentalName = "SHARP2_ARROW_DOWN";
+											break;
+
+										case "^x":
+											accidentalName = "SHARP2_ARROW_UP";
+											break;
+
+										default:
+											throw "Unsupported accidental in the custom key signature: " + currentAccidental;
+									}
+									if (accidentalName != "")
+									{
+										currentCustomKeySignature[currentNote] = accidentalName;
+									}
+								}
+							}
+							catch (error)
+							{
+								logMessage(error, true);
+								currentCustomKeySignature = {};
+							}
+						}
 					}
 				
 					if (cursor.element)
@@ -404,7 +524,8 @@ MuseScore
 		logMessage("Tuning note: " + calculateNoteName(note));
 		
 		var tuningOffset = 0;
-		var noteNameOctave = getNoteLetter(note) + getOctave(note);
+		var noteLetter = getNoteLetter(note);
+		var noteNameOctave = noteLetter + getOctave(note);
 		var accidentalName = getAccidentalName(note);
 
 		// Get the tuning offset for the input note with respect to 12EDO, based
@@ -565,6 +686,16 @@ MuseScore
 			{
 				accidentalName = previousAccidentals[noteNameOctave];
 				logMessage("Applying to the following accidental to the current note from a previous note within the measure: " + accidentalName);
+			}
+			// If the note still does not have an accidental applied to it,
+			// check if it's modified by a custom key signature.
+			if (accidentalName == "NONE")
+			{
+				if (currentCustomKeySignature.hasOwnProperty(noteLetter))
+				{
+					accidentalName = currentCustomKeySignature[noteLetter];
+					logMessage("Applying the following accidental from a custom key signature: " + accidentalName);
+				}
 			}
 		}
 		else
@@ -855,8 +986,8 @@ MuseScore
 	}
 	
 	/**
-	 * Log the input message, prefixed by the timestamp.  Automatically redirect
-	 * the output message depending on the MuseScore version.
+	 * Log the input message, and automatically redirect the output message
+	 * depending on the MuseScore version.
 	 */
 	function logMessage(message, isErrorMessage)
 	{
@@ -865,14 +996,21 @@ MuseScore
 			isErrorMessage = false;
 		}
 	
-		var formattedMessage = Qt.formatDateTime(new Date(), "yyyy-MM-dd HH:mm:ss") + " | " + message;
 		if (mscoreMajorVersion >= 4)
 		{
-			debugLogger.log(formattedMessage, isErrorMessage);
+			debugLogger.log(message, isErrorMessage);
 		}
 		else
 		{
-			console.log(formattedMessage);	
+			if (isErrorMessage)
+			{
+				console.error(message);
+				debugLogger.log(message, isErrorMessage);
+			}
+			else
+			{
+				console.log(message);
+			}
 		}
 	}
 }
