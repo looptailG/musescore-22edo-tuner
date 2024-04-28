@@ -255,7 +255,7 @@ MuseScore
 	property variant currentCustomKeySignature:
 	{}
 	// Regex used for checking if a string is valid as a custom key signature.
-	property var customKeySignatureRegex: /^(vbb|\^bb|vb|\^b|vh|\^h|v#|\^#|vx|\^x|)(?:\.(?:vbb|\^bb|vb|\^b|vh|\^h|v#|\^#|vx|\^x|)){6}$/;
+	property var customKeySignatureRegex: /^(vbb|bb|\^bb|vb|b|\^b|vh|h|\^h|v#|#|\^#|vx|x|\^x|)(?:\.(?:vbb|bb|\^bb|vb|b|\^b|vh|h|\^h|v#|#|\^#|vx|x|\^x|)){6}$/;
 	// Array containing the notes in the order they appear in the custom key
 	// signature string.
 	property var customKeySignatureNoteOrder: ["F", "C", "G", "D", "A", "E", "B"];
