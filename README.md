@@ -13,7 +13,7 @@ This plugin is compatible with the [Ups and Downs Notation](https://en.xen.wiki/
 
 See [here](https://github.com/looptailG/musescore-22edo-tuner/wiki/Supported-Accidentals) for a list of every supported accidental.
 
-This plugin remembers which accidental is applied to any given note, and will automatically apply the same accidental to the following notes within the same measure.  This is also true for microtonal accidentals, for which this is usually not automatically done in Musescore.  A limitation of this is that the plugin only checks for accidentals for each voice individually, so if there are multiple voices with microtonal accidentals, it might be necessary to add an extra accidental for the first modified note in each voice.  This extra accidental can be safely made invisible, as that won't affect the plugin, as in the following example:
+This plugin remembers which accidental is applied to any given note, and will automatically apply the correct tuning offset to the following notes within the same measure.  This is also true for microtonal accidentals, for which this is usually not automatically done in Musescore.  A limitation of this is that the plugin only checks for accidentals for each voice individually, so if there are multiple voices with microtonal accidentals, it might be necessary to add an extra accidental for the first modified note in each voice.  This extra accidental can be safely made invisible, as that won't affect the plugin, as in the following example:
 
 ![image](https://github.com/looptailG/musescore-22edo-tuner/assets/99362337/7f5c20c8-6a68-441a-8294-45654d0678b0)
 
