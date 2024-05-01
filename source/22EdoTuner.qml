@@ -24,7 +24,7 @@ MuseScore
 {
 	menuPath: "Plugins.Tuner.22EDO";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
-	version: "1.1.0";
+	version: "1.1.1";
 	
 	Component.onCompleted:
 	{
@@ -41,64 +41,15 @@ MuseScore
 	// Difference in cents between a 12EDO and a 31EDO fifth.
 	property var fifthDeviation: 700 - 13 * stepSize;
 	// Offsets in cents between the notes in 31EDO and their 12EDO counterparts.
-	property variant centOffsets:
+	property variant baseNotesOffset:
 	{
-		"C":
-		{
-			"bb": 2 * fifthDeviation + 14 * fifthDeviation,
-			"b": 2 * fifthDeviation + 7 * fifthDeviation,
-			"h": 2 * fifthDeviation,
-			"#": 2 * fifthDeviation - 7 * fifthDeviation,
-			"x": 2 * fifthDeviation - 14 * fifthDeviation
-		},
-		"D":
-		{
-			"bb": 14 * fifthDeviation,
-			"b": 7 * fifthDeviation,
-			"h": 0,
-			"#": -7 * fifthDeviation,
-			"x": -14 * fifthDeviation
-		},
-		"E":
-		{
-			"bb": -2 * fifthDeviation + 14 * fifthDeviation,
-			"b": -2 * fifthDeviation + 7 * fifthDeviation,
-			"h": -2 * fifthDeviation,
-			"#": -2 * fifthDeviation - 7 * fifthDeviation,
-			"x": -2 * fifthDeviation - 14 * fifthDeviation
-		},
-		"F":
-		{
-			"bb": 3 * fifthDeviation + 14 * fifthDeviation,
-			"b": 3 * fifthDeviation + 7 * fifthDeviation,
-			"h": 3 * fifthDeviation,
-			"#": 3 * fifthDeviation - 7 * fifthDeviation,
-			"x": 3 * fifthDeviation - 14 * fifthDeviation
-		},
-		"G":
-		{
-			"bb": 1 * fifthDeviation + 14 * fifthDeviation,
-			"b": 1 * fifthDeviation + 7 * fifthDeviation,
-			"h": 1 * fifthDeviation,
-			"#": 1 * fifthDeviation - 7 * fifthDeviation,
-			"x": 1 * fifthDeviation - 14 * fifthDeviation
-		},
-		"A":
-		{
-			"bb": -1 * fifthDeviation + 14 * fifthDeviation,
-			"b": -1 * fifthDeviation + 7 * fifthDeviation,
-			"h": -1 * fifthDeviation,
-			"#": -1 * fifthDeviation - 7 * fifthDeviation,
-			"x": -1 * fifthDeviation - 14 * fifthDeviation
-		},
-		"B":
-		{
-			"bb": -3 * fifthDeviation + 14 * fifthDeviation,
-			"b": -3 * fifthDeviation + 7 * fifthDeviation,
-			"h": -3 * fifthDeviation,
-			"#": -3 * fifthDeviation - 7 * fifthDeviation,
-			"x": -3 * fifthDeviation - 14 * fifthDeviation
-		},
+		"C": 2 * fifthDeviation,
+		"D": 0,
+		"E": -2 * fifthDeviation,
+		"F": 3 * fifthDeviation,
+		"G": 1 * fifthDeviation,
+		"A": -1 * fifthDeviation,
+		"B": -3 * fifthDeviation,
 	}
 	
 	// Map containing the properties of every supported accidental.  The
@@ -358,23 +309,31 @@ MuseScore
 					}
 
 					// Check for key signature change.
-					// TODO: This implementation is very ineffcient, as this piece of code is called on every element when the key signature is not empty.  Find a way to call this only when the key signature actually change.
-					if (cursor.keySignature)
+					var currentSegment = cursor.segment;
+					while ((currentSegment != null) && (currentSegment.tick == cursor.segment.tick))
 					{
-						// The key signature has changed, empty the custom key
-						// signature map.
-						// TODO: This if is necessary only because the previous if is not true only when there is an actual key signature change.  This way we check if the mapping was not empty before, and thus actually needs to be emptied now.
-						if (Object.keys(currentCustomKeySignature).length != 0)
+						if (currentSegment.segmentType == Segment.KeySig)
 						{
 							logMessage("Key signature change, emptying the custom key signature map.");
 							currentCustomKeySignature = {};
 						}
+						currentSegment = currentSegment.nextInMeasure;
+					}
+					currentSegment = cursor.segment.prevInMeasure;
+					while ((currentSegment != null) && (currentSegment.tick == cursor.segment.tick))
+					{
+						if (currentSegment.segmentType == Segment.KeySig)
+						{
+							logMessage("Key signature change, emptying the custom key signature map.");
+							currentCustomKeySignature = {};
+						}
+						currentSegment = currentSegment.prevInMeasure;
 					}
 					// Check if there is a text indicating a custom key
 					// signature change.
 					for (var i = 0; i < cursor.segment.annotations.length; i++)
 					{
-						var annotationText = cursor.segment.annotations[i].text;
+						var annotationText = cursor.segment.annotations[i].text.replace(/\s*/g, "");
 						if (customKeySignatureRegex.test(annotationText))
 						{
 							logMessage("Applying the current custom key signature: " + annotationText);
@@ -385,7 +344,7 @@ MuseScore
 								for (var j = 0; j < annotationTextSplitted.length; j++)
 								{
 									var currentNote = customKeySignatureNoteOrder[j];
-									var currentAccidental = annotationTextSplitted[j];
+									var currentAccidental = annotationTextSplitted[j].trim();
 									var accidentalName = "";
 									switch (currentAccidental)
 									{
@@ -458,7 +417,8 @@ MuseScore
 							}
 						}
 					}
-				
+					
+					// Tune notes.
 					if (cursor.element)
 					{
 						if (cursor.element.type == Element.CHORD)
@@ -530,153 +490,18 @@ MuseScore
 
 		// Get the tuning offset for the input note with respect to 12EDO, based
 		// on its tonal pitch class.
-		switch (note.tpc)
-		{
-			case -1:
-				tuningOffset += centOffsets["F"]["bb"];
-				break;
-
-			case 0:
-				tuningOffset += centOffsets["C"]["bb"];
-				break;
-
-			case 1:
-				tuningOffset += centOffsets["G"]["bb"];
-				break;
-
-			case 2:
-				tuningOffset += centOffsets["D"]["bb"];
-				break;
-
-			case 3:
-				tuningOffset += centOffsets["A"]["bb"];
-				break;
-
-			case 4:
-				tuningOffset += centOffsets["E"]["bb"];
-				break;
-
-			case 5:
-				tuningOffset += centOffsets["B"]["bb"];
-				break;
-
-			case 6:
-				tuningOffset += centOffsets["F"]["b"];
-				break;
-
-			case 7:
-				tuningOffset += centOffsets["C"]["b"];
-				break;
-
-			case 8:
-				tuningOffset += centOffsets["G"]["b"];
-				break;
-
-			case 9:
-				tuningOffset += centOffsets["D"]["b"];
-				break;
-
-			case 10:
-				tuningOffset += centOffsets["A"]["b"];
-				break;
-
-			case 11:
-				tuningOffset += centOffsets["E"]["b"];
-				break;
-
-			case 12:
-				tuningOffset += centOffsets["B"]["b"];
-				break;
-
-			case 13:
-				tuningOffset += centOffsets["F"]["h"];
-				break;
-
-			case 14:
-				tuningOffset += centOffsets["C"]["h"];
-				break;
-
-			case 15:
-				tuningOffset += centOffsets["G"]["h"];
-				break;
-
-			case 16:
-				tuningOffset += centOffsets["D"]["h"];
-				break;
-
-			case 17:
-				tuningOffset += centOffsets["A"]["h"];
-				break;
-
-			case 18:
-				tuningOffset += centOffsets["E"]["h"];
-				break;
-
-			case 19:
-				tuningOffset += centOffsets["B"]["h"];
-				break;
-
-			case 20:
-				tuningOffset += centOffsets["F"]["#"];
-				break;
-
-			case 21:
-				tuningOffset += centOffsets["C"]["#"];
-				break;
-
-			case 22:
-				tuningOffset += centOffsets["G"]["#"];
-				break;
-
-			case 23:
-				tuningOffset += centOffsets["D"]["#"];
-				break;
-
-			case 24:
-				tuningOffset += centOffsets["A"]["#"];
-				break;
-
-			case 25:
-				tuningOffset += centOffsets["E"]["#"];
-				break;
-
-			case 26:
-				tuningOffset += centOffsets["B"]["#"];
-				break;
-
-			case 27:
-				tuningOffset += centOffsets["F"]["x"];
-				break;
-
-			case 28:
-				tuningOffset += centOffsets["C"]["x"];
-				break;
-
-			case 29:
-				tuningOffset += centOffsets["G"]["x"];
-				break;
-
-			case 30:
-				tuningOffset += centOffsets["D"]["x"];
-				break;
-
-			case 31:
-				tuningOffset += centOffsets["A"]["x"];
-				break;
-
-			case 32:
-				tuningOffset += centOffsets["E"]["x"];
-				break;
-
-			case 33:
-				tuningOffset += centOffsets["B"]["x"];
-				break;
-			
-			default:
-				throw "Could not resolve the tpc: " + note.tpc;
-		}
+		tuningOffset = baseNotesOffset[noteLetter];
+		// Add the tuning offset due to the accidental.  Each semitone adds 7
+		// fifth deviations to the note's tuning, because we have to move 7
+		// steps in the circle of fifths to get to the altered note.
+		var tpcAccidental = Math.floor((note.tpc + 1) / 7) - 2;
+		tuningOffset -= tpcAccidental * 7 * fifthDeviation;
 		logMessage("Base tuning offset: " + tuningOffset);
 		
+		// Certain accidentals, like the microtonal accidentals, are not
+		// conveyed by the tpc property, but are instead handled directly via a
+		// tuning offset.
+		// Check which accidental is applied to the note.
 		if (accidentalName == "NONE")
 		{
 			// If the note does not have any accidental applied to it, check if
@@ -704,10 +529,7 @@ MuseScore
 			// note.
 			previousAccidentals[noteNameOctave] = accidentalName;
 		}
-		
-		// Certain accidentals, like the microtonal accidentals, are not
-		// conveyed by the tpc property, but are instead handled directly via a
-		// tuning offset.
+		// Check if the accidental is handled by a tuning offset.
 		var defaultAccidentalOffset = supportedAccidentals[accidentalName]["DEFAULT_OFFSET"];
 		if (defaultAccidentalOffset !== undefined)
 		{
@@ -733,6 +555,7 @@ MuseScore
 			logMessage("Offsetting the tuning by the following amount of EDO steps: " + edoSteps);
 			tuningOffset += edoSteps * stepSize;
 		}
+		logMessage("Final tuning offset: " + tuningOffset);
 
 		return tuningOffset;
 	}
@@ -824,27 +647,29 @@ MuseScore
 			case 0:
 				return "C";
 			
-			case 1:
-				return "G";
-			
 			case 2:
+			case -5:
 				return "D";
 			
-			case 3:
-				return "A";
-			
 			case 4:
+			case -3:
 				return "E";
 			
-			case 5:
-				return "B";
-			
-			case -1:
 			case 6:
+			case -1:
 				return "F";
 			
-			default:
-				throw "Could not resolve the tpc: " + note.tpc;
+			case 1:
+			case -6:
+				return "G";
+			
+			case 3:
+			case -4:
+				return "A";
+			
+			case 5:
+			case -2:
+				return "B";
 		}
 	}
 	
