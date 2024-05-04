@@ -24,7 +24,7 @@ MuseScore
 {
 	menuPath: "Plugins.Tuner.22EDO";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
-	version: "1.1.1";
+	version: "1.1.2";
 	
 	Component.onCompleted:
 	{
@@ -306,114 +306,111 @@ MuseScore
 					{
 						// New measure, empty the previous accidentals map.
 						previousAccidentals = {};
+						logMessage("----");
 					}
 
 					// Check for key signature change.
-					var currentSegment = cursor.segment;
-					while ((currentSegment != null) && (currentSegment.tick == cursor.segment.tick))
+					// TODO: This implementation is very ineffcient, as this piece of code is called on every element when the key signature is not empty.  Find a way to call this only when the key signature actually change.
+					if (cursor.keySignature)
 					{
-						if (currentSegment.segmentType == Segment.KeySig)
+						// The key signature has changed, empty the custom key
+						// signature map.
+						// TODO: This if is necessary only because the previous if is not true only when there is an actual key signature change.  This way we check if the mapping was not empty before, and thus actually needs to be emptied now.
+						if (Object.keys(currentCustomKeySignature).length != 0)
 						{
 							logMessage("Key signature change, emptying the custom key signature map.");
 							currentCustomKeySignature = {};
 						}
-						currentSegment = currentSegment.nextInMeasure;
-					}
-					currentSegment = cursor.segment.prevInMeasure;
-					while ((currentSegment != null) && (currentSegment.tick == cursor.segment.tick))
-					{
-						if (currentSegment.segmentType == Segment.KeySig)
-						{
-							logMessage("Key signature change, emptying the custom key signature map.");
-							currentCustomKeySignature = {};
-						}
-						currentSegment = currentSegment.prevInMeasure;
 					}
 					// Check if there is a text indicating a custom key
 					// signature change.
 					for (var i = 0; i < cursor.segment.annotations.length; i++)
 					{
-						var annotationText = cursor.segment.annotations[i].text.replace(/\s*/g, "");
-						if (customKeySignatureRegex.test(annotationText))
+						var annotationText = cursor.segment.annotations[i].text;
+						if (annotationText)
 						{
-							logMessage("Applying the current custom key signature: " + annotationText);
-							currentCustomKeySignature = {};
-							try
+							annotationText = annotationText.replace(/\s*/g, "");
+							if (customKeySignatureRegex.test(annotationText))
 							{
-								var annotationTextSplitted = annotationText.split(".");
-								for (var j = 0; j < annotationTextSplitted.length; j++)
+								logMessage("Applying the current custom key signature: " + annotationText);
+								currentCustomKeySignature = {};
+								try
 								{
-									var currentNote = customKeySignatureNoteOrder[j];
-									var currentAccidental = annotationTextSplitted[j].trim();
-									var accidentalName = "";
-									switch (currentAccidental)
+									var annotationTextSplitted = annotationText.split(".");
+									for (var j = 0; j < annotationTextSplitted.length; j++)
 									{
-										case "bb":
-										case "b":
-										case "":
-										case "h":
-										case "#":
-										case "x":
-											// Non-microtonal accidentals are
-											// automatically handled by
-											// Musescore even in custom key
-											// signatures, so we only have to
-											// check for microtonal accidentals.
-											break;
+										var currentNote = customKeySignatureNoteOrder[j];
+										var currentAccidental = annotationTextSplitted[j].trim();
+										var accidentalName = "";
+										switch (currentAccidental)
+										{
+											case "bb":
+											case "b":
+											case "":
+											case "h":
+											case "#":
+											case "x":
+												// Non-microtonal accidentals are
+												// automatically handled by
+												// Musescore even in custom key
+												// signatures, so we only have to
+												// check for microtonal accidentals.
+												break;
 
-										case "vbb":
-											accidentalName = "FLAT2_ARROW_DOWN";
-											break;
+											case "vbb":
+												accidentalName = "FLAT2_ARROW_DOWN";
+												break;
 
-										case "^bb":
-											accidentalName = "FLAT2_ARROW_UP";
-											break;
+											case "^bb":
+												accidentalName = "FLAT2_ARROW_UP";
+												break;
 
-										case "vb":
-											accidentalName = "FLAT_ARROW_DOWN";
-											break;
+											case "vb":
+												accidentalName = "FLAT_ARROW_DOWN";
+												break;
 
-										case "^b":
-											accidentalName = "FLAT_ARROW_UP";
-											break;
+											case "^b":
+												accidentalName = "FLAT_ARROW_UP";
+												break;
 
-										case "vh":
-											accidentalName = "NATURAL_ARROW_DOWN";
-											break;
+											case "vh":
+												accidentalName = "NATURAL_ARROW_DOWN";
+												break;
 
-										case "^h":
-											accidentalName = "NATURAL_ARROW_UP";
-											break;
+											case "^h":
+												accidentalName = "NATURAL_ARROW_UP";
+												break;
 
-										case "v#":
-											accidentalName = "SHARP_ARROW_DOWN";
-											break;
+											case "v#":
+												accidentalName = "SHARP_ARROW_DOWN";
+												break;
 
-										case "^#":
-											accidentalName = "SHARP_ARROW_UP";
-											break;
+											case "^#":
+												accidentalName = "SHARP_ARROW_UP";
+												break;
 
-										case "vx":
-											accidentalName = "SHARP2_ARROW_DOWN";
-											break;
+											case "vx":
+												accidentalName = "SHARP2_ARROW_DOWN";
+												break;
 
-										case "^x":
-											accidentalName = "SHARP2_ARROW_UP";
-											break;
+											case "^x":
+												accidentalName = "SHARP2_ARROW_UP";
+												break;
 
-										default:
-											throw "Unsupported accidental in the custom key signature: " + currentAccidental;
-									}
-									if (accidentalName != "")
-									{
-										currentCustomKeySignature[currentNote] = accidentalName;
+											default:
+												throw "Unsupported accidental in the custom key signature: " + currentAccidental;
+										}
+										if (accidentalName != "")
+										{
+											currentCustomKeySignature[currentNote] = accidentalName;
+										}
 									}
 								}
-							}
-							catch (error)
-							{
-								logMessage(error, true);
-								currentCustomKeySignature = {};
+								catch (error)
+								{
+									logMessage(error, true);
+									currentCustomKeySignature = {};
+								}
 							}
 						}
 					}
