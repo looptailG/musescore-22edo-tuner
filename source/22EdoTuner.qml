@@ -24,7 +24,7 @@ MuseScore
 {
 	menuPath: "Plugins.Tuner.22EDO";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
-	version: "1.1.2";
+	version: "1.1.3-alpha";
 	
 	Component.onCompleted:
 	{
@@ -189,6 +189,56 @@ MuseScore
 		{
 			"EDO_STEPS": 7,
 			"DEFAULT_OFFSET": 0,
+		},
+		"DOUBLE_FLAT_TWO_ARROWS_DOWN":
+		{
+			"EDO_STEPS": -8;
+			"DEFAULT_OFFSET": 0;
+		},
+		"FLAT_TWO_ARROWS_DOWN":
+		{
+			"EDO_STEPS": -5;
+			"DEFAULT_OFFSET": 0;
+		},
+		"NATURAL_TWO_ARROWS_DOWN":
+		{
+			"EDO_STEPS": -2;
+			"DEFAULT_OFFSET": 0;
+		},
+		"SHARP_TWO_ARROWS_DOWN":
+		{
+			"EDO_STEPS": 1;
+			"DEFAULT_OFFSET": 0;
+		},
+		"DOUBLE_SHARP_TWO_ARROWS_DOWN":
+		{
+			"EDO_STEPS": 4;
+			"DEFAULT_OFFSET": 0;
+		},
+		"DOUBLE_FLAT_TWO_ARROWS_UP":
+		{
+			"EDO_STEPS": -4;
+			"DEFAULT_OFFSET": 0;
+		},
+		"FLAT_TWO_ARROWS_UP":
+		{
+			"EDO_STEPS": -1;
+			"DEFAULT_OFFSET": 0;
+		},
+		"NATURAL_TWO_ARROWS_UP":
+		{
+			"EDO_STEPS": 2;
+			"DEFAULT_OFFSET": 0;
+		},
+		"SHARP_TWO_ARROWS_UP":
+		{
+			"EDO_STEPS": 5;
+			"DEFAULT_OFFSET": 0;
+		},
+		"DOUBLE_SHARP_TWO_ARROWS_UP":
+		{
+			"EDO_STEPS": 8;
+			"DEFAULT_OFFSET": 0;
 		},
 	}
 	
