@@ -192,53 +192,53 @@ MuseScore
 		},
 		"DOUBLE_FLAT_TWO_ARROWS_DOWN":
 		{
-			"EDO_STEPS": -8;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": -8,
+			"DEFAULT_OFFSET": 0,
 		},
 		"FLAT_TWO_ARROWS_DOWN":
 		{
-			"EDO_STEPS": -5;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": -5,
+			"DEFAULT_OFFSET": 0,
 		},
 		"NATURAL_TWO_ARROWS_DOWN":
 		{
-			"EDO_STEPS": -2;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": -2,
+			"DEFAULT_OFFSET": 0,
 		},
 		"SHARP_TWO_ARROWS_DOWN":
 		{
-			"EDO_STEPS": 1;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": 1,
+			"DEFAULT_OFFSET": 0,
 		},
 		"DOUBLE_SHARP_TWO_ARROWS_DOWN":
 		{
-			"EDO_STEPS": 4;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": 4,
+			"DEFAULT_OFFSET": 0,
 		},
 		"DOUBLE_FLAT_TWO_ARROWS_UP":
 		{
-			"EDO_STEPS": -4;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": -4,
+			"DEFAULT_OFFSET": 0,
 		},
 		"FLAT_TWO_ARROWS_UP":
 		{
-			"EDO_STEPS": -1;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": -1,
+			"DEFAULT_OFFSET": 0,
 		},
 		"NATURAL_TWO_ARROWS_UP":
 		{
-			"EDO_STEPS": 2;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": 2,
+			"DEFAULT_OFFSET": 0,
 		},
 		"SHARP_TWO_ARROWS_UP":
 		{
-			"EDO_STEPS": 5;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": 5,
+			"DEFAULT_OFFSET": 0,
 		},
 		"DOUBLE_SHARP_TWO_ARROWS_UP":
 		{
-			"EDO_STEPS": 8;
-			"DEFAULT_OFFSET": 0;
+			"EDO_STEPS": 8,
+			"DEFAULT_OFFSET": 0,
 		},
 	}
 	
@@ -843,6 +843,36 @@ MuseScore
 			
 			case Accidental.DOUBLE_SHARP_ONE_ARROW_UP:
 				return "DOUBLE_SHARP_ONE_ARROW_UP";
+			
+			case Accidental.DOUBLE_FLAT_TWO_ARROWS_DOWN:
+				return "DOUBLE_FLAT_TWO_ARROWS_DOWN";
+			
+			case Accidental.FLAT_TWO_ARROWS_DOWN:
+				return "FLAT_TWO_ARROWS_DOWN";
+			
+			case Accidental.NATURAL_TWO_ARROWS_DOWN:
+				return "NATURAL_TWO_ARROWS_DOWN";
+			
+			case Accidental.SHARP_TWO_ARROWS_DOWN:
+				return "SHARP_TWO_ARROWS_DOWN";
+			
+			case Accidental.DOUBLE_SHARP_TWO_ARROWS_DOWN:
+				return "DOUBLE_SHARP_TWO_ARROWS_DOWN";
+			
+			case Accidental.DOUBLE_FLAT_TWO_ARROWS_UP:
+				return "DOUBLE_FLAT_TWO_ARROWS_UP";
+			
+			case Accidental.FLAT_TWO_ARROWS_UP:
+				return "FLAT_TWO_ARROWS_UP";
+			
+			case Accidental.NATURAL_TWO_ARROWS_UP:
+				return "NATURAL_TWO_ARROWS_UP";
+			
+			case Accidental.SHARP_TWO_ARROWS_UP:
+				return "SHARP_TWO_ARROWS_UP";
+			
+			case Accidental.DOUBLE_SHARP_TWO_ARROWS_UP:
+				return "DOUBLE_SHARP_TWO_ARROWS_UP";
 			
 			default:
 				throw "Unsupported accidental: " + note.accidentalType;
