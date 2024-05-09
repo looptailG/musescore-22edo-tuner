@@ -618,6 +618,10 @@ MuseScore
 		var accidental = getAccidentalEdoSteps(getAccidentalName(note));
 		switch (accidental)
 		{
+			case -8:
+				noteName = "vv" + noteName + "bb";
+				break;
+		
 			case -7:
 				noteName = "v" + noteName + "bb";
 				break;
@@ -675,6 +679,10 @@ MuseScore
 			
 			case 7:
 				noteName = "^" + noteName + "x";
+				break;
+			
+			case 8:
+				noteName = "^^" + noteName + "x";
 				break;
 			
 			default:
