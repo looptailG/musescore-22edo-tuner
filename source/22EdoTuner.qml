@@ -17,14 +17,19 @@
 */
 
 import QtQuick 2.2
-import QtQuick.Dialogs 1.1
+import FileIO 3.0
 import MuseScore 3.0
+import "libs/AccidentalUtils.js" as AccidentalUtils
+import "libs/DateUtils.js" as DateUtils
+import "libs/NoteUtils.js" as NoteUtils
+import "libs/StringUtils.js" as StringUtils
+import "libs/TuningUtils.js" as TuningUtils
 
 MuseScore
 {
 	menuPath: "Plugins.Tuner.22EDO";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
-	version: "1.1.4";
+	version: "2.0.0-alpha";
 	
 	Component.onCompleted:
 	{
