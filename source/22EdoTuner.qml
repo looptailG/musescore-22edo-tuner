@@ -27,19 +27,11 @@ import "libs/TuningUtils.js" as TuningUtils
 
 MuseScore
 {
-	menuPath: "Plugins.Tuner.22EDO";
+	title = "22EDO Tuner";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
+	categoryCode = "playback";
+	thumbnailName = "22EdoThumbnail.png";
 	version: "2.0.0-alpha";
-	
-	Component.onCompleted:
-	{
-		if (mscoreMajorVersion >= 4)
-		{
-			title = qsTr("22EDO Tuner");
-			thumbnailName = "22EdoThumbnail.png";
-			categoryCode = "playback";
-		}
-	}
 
 	// Size in cents of an EDO step.
 	property var stepSize: 1200.0 / 22;
