@@ -162,6 +162,17 @@ MuseScore
 		}
 	}
 
+	FileIO
+	{
+		id: settingsReader;
+		source: Qt.resolvedUrl(".").toString().substring(8) + "Settings.tsv";
+		
+		onError:
+		{
+			logger.error(msg);
+		}
+	}
+
 	onRun:
 	{
 		logMessage("-- 22EDO Tuner -- Version " + version +  " --");
