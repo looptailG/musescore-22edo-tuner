@@ -27,10 +27,10 @@ import "libs/TuningUtils.js" as TuningUtils
 
 MuseScore
 {
-	title = "22EDO Tuner";
+	title: "22EDO Tuner";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
-	categoryCode = "playback";
-	thumbnailName = "22EdoThumbnail.png";
+	categoryCode: "playback";
+	thumbnailName: "22EdoThumbnail.png";
 	version: "2.0.0-alpha";
 	
 	property variant settings: {};
