@@ -37,206 +37,50 @@ MuseScore
 	property var stepSize: 1200.0 / 22;
 	// Difference in cents between a 12EDO and a 31EDO fifth.
 	property var fifthDeviation: 700 - 13 * stepSize;
-	// Offsets in cents between the notes in 31EDO and their 12EDO counterparts.
-	property variant baseNotesOffset:
-	{
-		"C": 2 * fifthDeviation,
-		"D": 0,
-		"E": -2 * fifthDeviation,
-		"F": 3 * fifthDeviation,
-		"G": 1 * fifthDeviation,
-		"A": -1 * fifthDeviation,
-		"B": -3 * fifthDeviation,
-	}
+	// Reference note, which has a tuning offset of zero.
+	property var referenceNote: "";
 	
-	// Map containing the properties of every supported accidental.  The
-	// accidentals with a "DEFAULT_OFFSET" property are those not handled by the
-	// tpc property, but instead by a tuning offset.
-	// Values taken from: Musescore/src/engraving/dom/accidental.cpp
+	// Map containing the amount of EDO steps of every supported accidental.
 	property variant supportedAccidentals:
 	{
-		"NONE":
-		{
-			"EDO_STEPS": 0,
-		},
-		"FLAT":
-		{
-			"EDO_STEPS": -3,
-		},
-		"NATURAL":
-		{
-			"EDO_STEPS": 0,
-		},
-		"SHARP":
-		{
-			"EDO_STEPS": 3,
-		},
-		"SHARP2":
-		{
-			"EDO_STEPS": 6,
-		},
-		"FLAT2":
-		{
-			"EDO_STEPS": -6,
-		},
-		"NATURAL_FLAT":
-		{
-			"EDO_STEPS": -3,
-		},
-		"NATURAL_SHARP":
-		{
-			"EDO_STEPS": 3,
-		},
-		"FLAT_ARROW_UP":
-		{
-			"EDO_STEPS": -2,
-			"DEFAULT_OFFSET": -50,
-		},
-		"FLAT_ARROW_DOWN":
-		{
-			"EDO_STEPS": -4,
-			"DEFAULT_OFFSET": -150,
-		},
-		"NATURAL_ARROW_UP":
-		{
-			"EDO_STEPS": 1,
-			"DEFAULT_OFFSET": 50,
-		},
-		"NATURAL_ARROW_DOWN":
-		{
-			"EDO_STEPS": -1,
-			"DEFAULT_OFFSET": -50,
-		},
-		"SHARP_ARROW_UP":
-		{
-			"EDO_STEPS": 4,
-			"DEFAULT_OFFSET": 150,
-		},
-		"SHARP_ARROW_DOWN":
-		{
-			"EDO_STEPS": 2,
-			"DEFAULT_OFFSET": 50,
-		},
-		"SHARP2_ARROW_UP":
-		{
-			"EDO_STEPS": 7,
-			"DEFAULT_OFFSET": 250,
-		},
-		"SHARP2_ARROW_DOWN":
-		{
-			"EDO_STEPS": 5,
-			"DEFAULT_OFFSET": 150,
-		},
-		"FLAT2_ARROW_UP":
-		{
-			"EDO_STEPS": -5,
-			"DEFAULT_OFFSET": -150,
-		},
-		"FLAT2_ARROW_DOWN":
-		{
-			"EDO_STEPS": -7,
-			"DEFAULT_OFFSET": -250,
-		},
-		"DOUBLE_FLAT_ONE_ARROW_DOWN":
-		{
-			"EDO_STEPS": -7,
-			"DEFAULT_OFFSET": 0,
-		},
-		"FLAT_ONE_ARROW_DOWN":
-		{
-			"EDO_STEPS": -4,
-			"DEFAULT_OFFSET": 0,
-		},
-		"NATURAL_ONE_ARROW_DOWN":
-		{
-			"EDO_STEPS": -1,
-			"DEFAULT_OFFSET": 0,
-		},
-		"SHARP_ONE_ARROW_DOWN":
-		{
-			"EDO_STEPS": 2,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_SHARP_ONE_ARROW_DOWN":
-		{
-			"EDO_STEPS": 5,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_FLAT_ONE_ARROW_UP":
-		{
-			"EDO_STEPS": -5,
-			"DEFAULT_OFFSET": 0,
-		},
-		"FLAT_ONE_ARROW_UP":
-		{
-			"EDO_STEPS": -2,
-			"DEFAULT_OFFSET": 0,
-		},
-		"NATURAL_ONE_ARROW_UP":
-		{
-			"EDO_STEPS": 1,
-			"DEFAULT_OFFSET": 0,
-		},
-		"SHARP_ONE_ARROW_UP":
-		{
-			"EDO_STEPS": 4,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_SHARP_ONE_ARROW_UP":
-		{
-			"EDO_STEPS": 7,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_FLAT_TWO_ARROWS_DOWN":
-		{
-			"EDO_STEPS": -8,
-			"DEFAULT_OFFSET": 0,
-		},
-		"FLAT_TWO_ARROWS_DOWN":
-		{
-			"EDO_STEPS": -5,
-			"DEFAULT_OFFSET": 0,
-		},
-		"NATURAL_TWO_ARROWS_DOWN":
-		{
-			"EDO_STEPS": -2,
-			"DEFAULT_OFFSET": 0,
-		},
-		"SHARP_TWO_ARROWS_DOWN":
-		{
-			"EDO_STEPS": 1,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_SHARP_TWO_ARROWS_DOWN":
-		{
-			"EDO_STEPS": 4,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_FLAT_TWO_ARROWS_UP":
-		{
-			"EDO_STEPS": -4,
-			"DEFAULT_OFFSET": 0,
-		},
-		"FLAT_TWO_ARROWS_UP":
-		{
-			"EDO_STEPS": -1,
-			"DEFAULT_OFFSET": 0,
-		},
-		"NATURAL_TWO_ARROWS_UP":
-		{
-			"EDO_STEPS": 2,
-			"DEFAULT_OFFSET": 0,
-		},
-		"SHARP_TWO_ARROWS_UP":
-		{
-			"EDO_STEPS": 5,
-			"DEFAULT_OFFSET": 0,
-		},
-		"DOUBLE_SHARP_TWO_ARROWS_UP":
-		{
-			"EDO_STEPS": 8,
-			"DEFAULT_OFFSET": 0,
-		},
+		"NONE": 0,
+		"FLAT": -3,
+		"NATURAL": 0,
+		"SHARP": 3,
+		"SHARP2": 6,
+		"FLAT2": -6,
+		"NATURAL_FLAT": -3,
+		"NATURAL_SHARP": 3,
+		"FLAT_ARROW_UP": -2,
+		"FLAT_ARROW_DOWN": -4,
+		"NATURAL_ARROW_UP": 1,
+		"NATURAL_ARROW_DOWN": -1,
+		"SHARP_ARROW_UP": 4,
+		"SHARP_ARROW_DOWN": 2,
+		"SHARP2_ARROW_UP": 7,
+		"SHARP2_ARROW_DOWN": 5,
+		"FLAT2_ARROW_UP": -5,
+		"FLAT2_ARROW_DOWN": -7,
+		"DOUBLE_FLAT_ONE_ARROW_DOWN": -7,
+		"FLAT_ONE_ARROW_DOWN": -4,
+		"NATURAL_ONE_ARROW_DOWN": -1,
+		"SHARP_ONE_ARROW_DOWN": 2,
+		"DOUBLE_SHARP_ONE_ARROW_DOWN": 5,
+		"DOUBLE_FLAT_ONE_ARROW_UP": -5,
+		"FLAT_ONE_ARROW_UP": -2,
+		"NATURAL_ONE_ARROW_UP": 1,
+		"SHARP_ONE_ARROW_UP": 4,
+		"DOUBLE_SHARP_ONE_ARROW_UP": 7,
+		"DOUBLE_FLAT_TWO_ARROWS_DOWN": -8,
+		"FLAT_TWO_ARROWS_DOWN": -5,
+		"NATURAL_TWO_ARROWS_DOWN": -2,
+		"SHARP_TWO_ARROWS_DOWN": 1,
+		"DOUBLE_SHARP_TWO_ARROWS_DOWN": 4,
+		"DOUBLE_FLAT_TWO_ARROWS_UP": -4,
+		"FLAT_TWO_ARROWS_UP": -1,
+		"NATURAL_TWO_ARROWS_UP": 2,
+		"SHARP_TWO_ARROWS_UP": 5,
+		"DOUBLE_SHARP_TWO_ARROWS_UP": 8,
 	}
 	
 	// Map containing the previous microtonal accidentals in the current
