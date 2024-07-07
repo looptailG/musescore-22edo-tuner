@@ -175,230 +175,253 @@ MuseScore
 
 	onRun:
 	{
-		logMessage("-- 22EDO Tuner -- Version " + version +  " --");
-	
-		curScore.startCmd();
-		
-		// Calculate the portion of the score to tune.
-		var cursor = curScore.newCursor();
-		var startStaff;
-		var endStaff;
-		var startTick;
-		var endTick;
-		cursor.rewind(Cursor.SELECTION_START);
-		if (!cursor.segment)
+		try
 		{
-			// Tune the entire score.
-			startStaff = 0;
-			endStaff = curScore.nstaves - 1;
-			startTick = 0;
-			endTick = curScore.lastSegment.tick + 1;
-			logMessage("Tuning the entire score.");
-		}
-		else
-		{
-			// Tune only the selection.
-			startStaff = cursor.staffIdx;
-			startTick = cursor.tick;
-			cursor.rewind(Cursor.SELECTION_END);
-			endStaff = cursor.staffIdx;
-			if (cursor.tick == 0)
+			// Read settings file.
+			settings = {};
+			var settingsFileContent = settingsReader.read().split("\n");
+			for (var i = 0; i < settingsFileContent.length; i++)
 			{
-				// If the selection includes the last measure of the score,
-				// .rewind() overflows and goes back to tick 0.
+				if (settingsFileContent[i].trim() != "")
+				{
+					var rowData = StringUtils.parseTsvRow(settingsFileContent[i]);
+					settings[rowData[0]] = rowData[1];
+				}
+			}
+			logger.currentLogLevel = parseInt(settings["LogLevel"]);
+			referenceNote = settings["ReferenceNote"];
+			
+			logger.log("-- 22EDO Tuner -- Version " + version + " --");
+			logger.log("Log level set to: " + logger.currentLogLevel);
+			logger.log("Reference note set to: " + referenceNote);
+			
+			curScore.startCmd();
+			
+			// Calculate the portion of the score to tune.
+			var cursor = curScore.newCursor();
+			var startStaff;
+			var endStaff;
+			var startTick;
+			var endTick;
+			cursor.rewind(Cursor.SELECTION_START);
+			if (!cursor.segment)
+			{
+				logger.log("Tuning the entire score.");
+				startStaff = 0;
+				endStaff = curScore.nstaves - 1;
+				startTick = 0;
 				endTick = curScore.lastSegment.tick + 1;
 			}
 			else
 			{
-				endTick = cursor.tick;
-			}
-			logMessage("Tuning only the portion of the score between staffs " + startStaff + " - " + endStaff + ", and between ticks " + startTick + " - " + endTick + ".");
-		}
-
-		// Loop on the portion of the score to tune.
-		for (var staff = startStaff; staff <= endStaff; staff++)
-		{
-			for (var voice = 0; voice < 4; voice++)
-			{
-				logMessage("-- Tuning Staff: " + staff + " -- Voice: " + voice + " --");
-				
-				cursor.voice = voice;
-				cursor.staffIdx = staff;
-				cursor.rewindToTick(startTick);
-
-				currentCustomKeySignature = {};
-
-				// Loop on elements of a voice.
-				while (cursor.segment && (cursor.tick < endTick))
+				logger.log("Tuning only the current selection.");
+				startStaff = cursor.staffIdx;
+				startTick = cursor.tick;
+				cursor.rewind(Cursor.SELECTION_END);
+				endStaff = cursor.staffIdx;
+				if (cursor.tick == 0)
 				{
-					if (cursor.segment.tick == cursor.measure.firstSegment.tick)
-					{
-						// New measure, empty the previous accidentals map.
-						previousAccidentals = {};
-						logMessage("----");
-					}
+					// If the selection includes the last measure of the score,
+					// .rewind() overflows and goes back to tick 0.
+					endTick = curScore.lastSegment.tick + 1;
+				}
+				else
+				{
+					endTick = cursor.tick;
+				}
+				logger.trace("Tuning only ticks: " + startTick + " - " + endTick);
+				logger.trace("Tuning only staffs: " + startStaff + " - " + endStaff);
+			}
+			
+			tunedNotes = 0;
+			totalNotes = 0;
+			// Loop on the portion of the score to tune.
+			for (var staff = startStaff; staff <= endStaff; staff++)
+			{
+				for (var voice = 0; voice < 4; voice++)
+				{
+					logger.log("Tuning Staff: " + staff + "; Voice: " + voice);
+					
+					cursor.voice = voice;
+					cursor.staffIdx = staff;
+					cursor.rewindToTick(startTick);
+					
+					currentCustomKeySignature = {};
+					previousAccidentals = {};
 
-					// Check for key signature change.
-					// TODO: This implementation is very ineffcient, as this piece of code is called on every element when the key signature is not empty.  Find a way to call this only when the key signature actually change.
-					if (cursor.keySignature)
+					// Loop on elements of a voice.
+					while (cursor.segment && (cursor.tick < endTick))
 					{
-						// The key signature has changed, empty the custom key
-						// signature map.
-						// TODO: This if is necessary only because the previous if is not true only when there is an actual key signature change.  This way we check if the mapping was not empty before, and thus actually needs to be emptied now.
-						if (Object.keys(currentCustomKeySignature).length != 0)
+						if (cursor.segment.tick == cursor.measure.firstSegment.tick)
 						{
-							logMessage("Key signature change, emptying the custom key signature map.");
-							currentCustomKeySignature = {};
+							// New measure, empty the previous accidentals map.
+							previousAccidentals = {};
 						}
-					}
-					// Check if there is a text indicating a custom key
-					// signature change.
-					for (var i = 0; i < cursor.segment.annotations.length; i++)
-					{
-						var annotationText = cursor.segment.annotations[i].text;
-						if (annotationText)
+						
+						// Check for key signature change.
+						// TODO: This implementation is very ineffcient, as this piece of code is called on every element when the key signature is not empty.  Find a way to call this only when the key signature actually change.
+						if (cursor.keySignature)
 						{
-							annotationText = annotationText.replace(/\s*/g, "");
-							if (customKeySignatureRegex.test(annotationText))
+							// The key signature has changed, empty the custom
+							// key signature map.
+							// TODO: This if is necessary only because the previous if is not true only when there is an actual key signature change.  This way we check if the mapping was not empty before, and thus actually needs to be emptied now.
+							if (Object.keys(currentCustomKeySignature).length != 0)
 							{
-								logMessage("Applying the current custom key signature: " + annotationText);
+								logger.log("Key signature change, emptying the custom key signature map.");
 								currentCustomKeySignature = {};
-								try
-								{
-									var annotationTextSplitted = annotationText.split(".");
-									for (var j = 0; j < annotationTextSplitted.length; j++)
-									{
-										var currentNote = customKeySignatureNoteOrder[j];
-										var currentAccidental = annotationTextSplitted[j].trim();
-										var accidentalName = "";
-										switch (currentAccidental)
-										{
-											case "bb":
-											case "b":
-											case "":
-											case "h":
-											case "#":
-											case "x":
-												// Non-microtonal accidentals are
-												// automatically handled by
-												// Musescore even in custom key
-												// signatures, so we only have to
-												// check for microtonal accidentals.
-												break;
-
-											case "vbb":
-												accidentalName = "FLAT2_ARROW_DOWN";
-												break;
-
-											case "^bb":
-												accidentalName = "FLAT2_ARROW_UP";
-												break;
-
-											case "vb":
-												accidentalName = "FLAT_ARROW_DOWN";
-												break;
-
-											case "^b":
-												accidentalName = "FLAT_ARROW_UP";
-												break;
-
-											case "vh":
-												accidentalName = "NATURAL_ARROW_DOWN";
-												break;
-
-											case "^h":
-												accidentalName = "NATURAL_ARROW_UP";
-												break;
-
-											case "v#":
-												accidentalName = "SHARP_ARROW_DOWN";
-												break;
-
-											case "^#":
-												accidentalName = "SHARP_ARROW_UP";
-												break;
-
-											case "vx":
-												accidentalName = "SHARP2_ARROW_DOWN";
-												break;
-
-											case "^x":
-												accidentalName = "SHARP2_ARROW_UP";
-												break;
-
-											default:
-												throw "Unsupported accidental in the custom key signature: " + currentAccidental;
-										}
-										if (accidentalName != "")
-										{
-											currentCustomKeySignature[currentNote] = accidentalName;
-										}
-									}
-								}
-								catch (error)
-								{
-									logMessage(error, true);
-									currentCustomKeySignature = {};
-								}
 							}
 						}
-					}
-					
-					// Tune notes.
-					if (cursor.element)
-					{
-						if (cursor.element.type == Element.CHORD)
+						// Check if there is a text indicating a custom key
+						// signature change.
+						for (var i = 0; i < cursor.segment.annotations.length; i++)
 						{
-							// Iterate through every grace chord.
-							var graceChords = cursor.element.graceNotes;
-							for (var i = 0; i < graceChords.length; i++)
+							var annotationText = cursor.segment.annotations[i].text;
+							if (annotationText)
 							{
-								var notes = graceChords[i].notes;
-								for (var j = 0; j < notes.length; j++)
+								annotationText = annotationText.replace(/\s*/g, "");
+								if (customKeySignatureRegex.test(annotationText))
 								{
+									logger.log("Applying the current custom key signature: " + annotationText);
+									currentCustomKeySignature = {};
 									try
 									{
-										notes[j].tuning = calculateTuningOffset(notes[j]);
+										var annotationTextSplitted = annotationText.split(".");
+										for (var j = 0; j < annotationTextSplitted.length; j++)
+										{
+											var currentNote = customKeySignatureNoteOrder[j];
+											var currentAccidental = annotationTextSplitted[j].trim();
+											var accidentalName = "";
+											switch (currentAccidental)
+											{
+												// Non-microtonal accidentals
+												// are automatically handled by
+												// Musescore even in custom key
+												// signatures, so we only have
+												// to check for microtonal
+												// accidentals.
+												case "bb":
+												case "b":
+												case "":
+												case "h":
+												case "#":
+												case "x":
+													break;
+												
+												case "vbb":
+													accidentalName = "FLAT2_ARROW_DOWN";
+													break;
+
+												case "^bb":
+													accidentalName = "FLAT2_ARROW_UP";
+													break;
+
+												case "vb":
+													accidentalName = "FLAT_ARROW_DOWN";
+													break;
+
+												case "^b":
+													accidentalName = "FLAT_ARROW_UP";
+													break;
+
+												case "vh":
+													accidentalName = "NATURAL_ARROW_DOWN";
+													break;
+
+												case "^h":
+													accidentalName = "NATURAL_ARROW_UP";
+													break;
+
+												case "v#":
+													accidentalName = "SHARP_ARROW_DOWN";
+													break;
+
+												case "^#":
+													accidentalName = "SHARP_ARROW_UP";
+													break;
+
+												case "vx":
+													accidentalName = "SHARP2_ARROW_DOWN";
+													break;
+
+												case "^x":
+													accidentalName = "SHARP2_ARROW_UP";
+													break;
+												
+												default:
+													throw "Unsupported accidental in the custom key signature: " + currentAccidental;
+											}
+											if (accidentalName != "")
+											{
+												currentCustomKeySignature[currentNote] = accidentalName;
+											}
+										}
 									}
 									catch (error)
 									{
-										logMessage(error, true);
+										logger.error(error);
+										currentCustomKeySignature = {};
 									}
 								}
 							}
-
-							// Iterate through every chord note.
-							var notes = cursor.element.notes;
-							for (var i = 0; i < notes.length; i++)
+						}
+						
+						// Tune notes.
+						if (cursor.element)
+						{
+							if (cursor.element.type == Element.CHORD)
 							{
-								try
+								// Iterate through every grace chord.
+								var graceChords = cursor.element.graceNotes;
+								for (var i = 0; i < graceChords.length; i++)
 								{
-									notes[i].tuning = calculateTuningOffset(notes[i]);
+									var notes = graceChords[i].notes;
+									for (var j = 0; j < notes.length; j++)
+									{
+										try
+										{
+											notes[j].tuning = calculateTuningOffset(notes[j]);
+										}
+										catch (error)
+										{
+											logger.error(error);
+										}
+									}
 								}
-								catch (error)
+
+								// Iterate through every chord note.
+								var notes = cursor.element.notes;
+								for (var i = 0; i < notes.length; i++)
 								{
-									logMessage(error, true);
+									try
+									{
+										notes[i].tuning = calculateTuningOffset(notes[i]);
+									}
+									catch (error)
+									{
+										logger.error(error);
+									}
 								}
 							}
 						}
-					}
 
-					cursor.next();
+						cursor.next();
+					}
 				}
 			}
+			
+			logger.log("Notes tuned: " + tunedNotes + " / " + totalNotes);
+			
+			curScore.endCmd();
 		}
-		
-		curScore.endCmd();
-		
-		debugLogger.showLogMessages();
-
-		if (mscoreMajorVersion >= 4)
+		catch (error)
 		{
+			logger.fatal(error);
+		}
+		finally
+		{
+			logger.writeLogMessages();
+			
 			quit();
-		}
-		else
-		{
-			Qt.quit();
 		}
 	}
 
