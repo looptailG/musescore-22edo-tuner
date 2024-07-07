@@ -104,36 +104,60 @@ MuseScore
 	property var tunedNotes: 0;
 	// Total amount of notes encountered in the portion of the score to tune.
 	property var totalNotes: 0;
-
-	property var showLog: false;
-	property var maxLines: 50;
-	MessageDialog
+	
+	FileIO
 	{
-		id: debugLogger;
-		title: "22EDO Tuner - Debug";
-		text: "";
-
-		function log(message, isErrorMessage)
+		id: logger;
+		source: Qt.resolvedUrl(".").toString().substring(8) + "logs/" + DateUtils.getFileDateTime() + "_log.txt";
+		property var logMessages: "";
+		property var currentLogLevel: 2;
+		property variant logLevels:
 		{
-			if (showLog || isErrorMessage)
+			0: " | TRACE   | ",
+			1: " | INFO    | ",
+			2: " | WARNING | ",
+			3: " | ERROR   | ",
+			4: " | FATAL   | ",
+		}
+		
+		function log(message, logLevel)
+		{
+			if (logLevel === undefined)
 			{
-				text += message + "\n";
+				logLevel = 1;
+			}
+			
+			if (logLevel >= currentLogLevel)
+			{
+				logMessages += DateUtils.getRFC3339DateTime() + logLevels[logLevel] + message + "\n";
 			}
 		}
 		
-		function showLogMessages()
+		function trace(message)
 		{
-			if (text != "")
+			log(message, 0);
+		}
+		
+		function warning(message)
+		{
+			log(message, 2);
+		}
+		
+		function error(message)
+		{
+			log(message, 3);
+		}
+		
+		function fatal(message)
+		{
+			log(message, 4);
+		}
+		
+		function writeLogMessages()
+		{
+			if (logMessages != "")
 			{
-				// Truncate the message to a maximum number of lines, to prevent
-				// issues with the message box being too large.
-				var messageLines = text.split("\n");
-				if (messageLines.length > maxLines)
-				{
-					var messageLines = messageLines.slice(0, maxLines);
-					text = messageLines.join("\n") + "\n" + "...";
-				}
-				debugLogger.open();
+				write(logMessages);
 			}
 		}
 	}
