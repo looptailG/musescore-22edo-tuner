@@ -32,6 +32,8 @@ MuseScore
 	categoryCode = "playback";
 	thumbnailName = "22EdoThumbnail.png";
 	version: "2.0.0-alpha";
+	
+	property variant settings: {};
 
 	// Size in cents of an EDO step.
 	property var stepSize: 1200.0 / 22;
