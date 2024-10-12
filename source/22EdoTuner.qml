@@ -25,16 +25,6 @@ MuseScore
 	menuPath: "Plugins.Tuner.22EDO";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
 	version: "1.1.6";
-	
-	Component.onCompleted:
-	{
-		if (mscoreMajorVersion >= 4)
-		{
-			title = qsTr("22EDO Tuner");
-			thumbnailName = "22EdoThumbnail.png";
-			categoryCode = "playback";
-		}
-	}
 
 	// Size in cents of an EDO step.
 	property var stepSize: 1200.0 / 22;
@@ -514,14 +504,7 @@ MuseScore
 		
 		debugLogger.showLogMessages();
 
-		if (mscoreMajorVersion >= 4)
-		{
-			quit();
-		}
-		else
-		{
-			Qt.quit();
-		}
+		Qt.quit();
 	}
 
 	/**
@@ -581,23 +564,6 @@ MuseScore
 		var defaultAccidentalOffset = supportedAccidentals[accidentalName]["DEFAULT_OFFSET"];
 		if (defaultAccidentalOffset !== undefined)
 		{
-			// Undo the default tuning offset which is applied to certain
-			// accidentals.
-			// The default tuning offset is applied only if an actual microtonal
-			// accidental is applied to the current note.  For this reason, we
-			// must check getAccidentalName() on the current note, it is not
-			// sufficient to check the value saved in accidentalName.
-			if (mscoreMajorVersion >= 4)
-			{
-				var actualAccidentalName = getAccidentalName(note);
-				var actualAccidentalOffset = supportedAccidentals[actualAccidentalName]["DEFAULT_OFFSET"];
-				if (actualAccidentalOffset !== undefined)
-				{
-					logMessage("Undoing the default tuning offset of: " + actualAccidentalOffset);
-					tuningOffset -= actualAccidentalOffset;
-				}
-			}
-			
 			// Apply the tuning offset for this specific accidental.
 			var edoSteps = getAccidentalEdoSteps(accidentalName);
 			logMessage("Offsetting the tuning by the following amount of EDO steps: " + edoSteps);
@@ -907,21 +873,14 @@ MuseScore
 			isErrorMessage = false;
 		}
 	
-		if (mscoreMajorVersion >= 4)
+		if (isErrorMessage)
 		{
+			console.error(message);
 			debugLogger.log(message, isErrorMessage);
 		}
 		else
 		{
-			if (isErrorMessage)
-			{
-				console.error(message);
-				debugLogger.log(message, isErrorMessage);
-			}
-			else
-			{
-				console.log(message);
-			}
+			console.log(message);
 		}
 	}
 }
