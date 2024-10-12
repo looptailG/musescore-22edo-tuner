@@ -61,7 +61,7 @@ See [here](https://github.com/looptailG/musescore-22edo-tuner/wiki/Known-Issues#
 
 ## Installing
 ### Musescore3
-- Download the file <code>22edo_tuner_x.y.z.zip</code>, where <code>x.y.z</code> is the version of the plugin.  You can find the latest version compatible with Musescore3 [here](https://github.com/looptailG/musescore-22edo-tuner/releases/tag/v1.1.4).
+- Download the file <code>22edo_tuner_x.y.z.zip</code>, where <code>x.y.z</code> is the version of the plugin.  You can find the latest version compatible with Musescore3 [here](https://github.com/looptailG/musescore-22edo-tuner/releases/tag/v1.1.6).
 - Extract the file `22EdoTuner.qml`, and move it to Musescore's plugin folder.
 - Follow the steps listed [here](https://musescore.org/en/handbook/3/plugins#enable-disable) to enable the plugin.
 
