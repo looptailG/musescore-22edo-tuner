@@ -24,7 +24,7 @@ MuseScore
 {
 	menuPath: "Plugins.Tuner.22EDO";
 	description: "Retune the selection, or the whole score if nothing is selected, to 22EDO.";
-	version: "1.1.6";
+	version: "1.6.0";
 
 	// Size in cents of an EDO step.
 	property var stepSize: 1200.0 / 22;
@@ -367,7 +367,20 @@ MuseScore
 					// signature change.
 					for (var i = 0; i < cursor.segment.annotations.length; i++)
 					{
-						var annotationText = cursor.segment.annotations[i].text;
+						var annotation = cursor.segment.annotations[i];
+						if (annotation.type === Element.STAFF_TEXT)
+						{
+							// Staff text changes the key signature for the
+							// current staff only.
+							var annotationPart = annotation.staff.part;
+							if (!(
+								(4 * staff >= annotationPart.startTrack) && (4 * staff < annotationPart.endTrack)
+							)) {
+								continue;
+							}
+						}
+					
+						var annotationText = annotation.text;
 						if (annotationText)
 						{
 							annotationText = annotationText.replace(/\s*/g, "");
